@@ -77,11 +77,13 @@ for col, status, label in zip(
 
 st.write("")
 st.warning(
-    "⚠️ **About the training data:** this model is trained on a real but small Kaggle dataset — "
-    "1,000 readings, of which only 19 are labeled 'leak' and 10 are labeled 'burst'. That's enough "
-    "to build a working demo, but predictions on the minority classes (leak/burst) should be read "
-    "as indicative, not production-grade — see the Analysis dashboard for the model's actual "
-    "test-set performance on each class."
+    "⚠️ **About the training data:** the source is a real Kaggle dataset — 1,000 readings, of "
+    "which only 19 are labeled 'leak' and 10 are labeled 'burst'. The training set is augmented "
+    "to ~750 examples of each (roughly balanced with the real 'normal' training rows), sampled "
+    "from those real classes' own statistical distribution — clearly marked with a `source` "
+    "column in the dataset file. Balancing this far improved burst detection noticeably but "
+    "traded some leak precision for recall — all performance shown is evaluated on real, "
+    "non-synthetic readings only. See the Analysis dashboard for the actual numbers."
 )
 
 st.write("")

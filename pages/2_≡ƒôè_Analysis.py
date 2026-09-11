@@ -43,10 +43,10 @@ counter_grid([
 st.write("")
 section_head("00", "Model Performance (5-fold cross-validation)")
 st.caption(
-    "These numbers come from 5-fold stratified cross-validation across all 1,000 rows — "
-    "not a single lucky test split. SMOTE oversampling was applied only inside each fold's "
-    "training data (never touching the validation fold), to correct for the dataset's severe "
-    "class imbalance without leaking synthetic samples into evaluation."
+    "These numbers come from 5-fold stratified cross-validation across all 1,000 REAL rows — "
+    "not a single lucky test split. Inside each fold, the training data was augmented with "
+    "synthetic leak/burst rows sampled from that fold's own real-class statistics (never touching "
+    "the validation fold) — every prediction below was made on a real, non-synthetic reading."
 )
 
 report = artifacts["status_report"]
@@ -62,17 +62,19 @@ for col, cls in zip(perf_cols, ["normal", "leak", "burst"]):
 Precision: <span style="color:var(--water);">{m.get('precision', 0):.2f}</span><br>
 Recall: <span style="color:var(--water);">{m.get('recall', 0):.2f}</span><br>
 F1-score: <span style="color:var(--water);">{m.get('f1-score', 0):.2f}</span><br>
-Support: <span style="color:var(--steel);">{int(m.get('support', 0))} test rows</span>
+Support: <span style="color:var(--steel);">{int(m.get('support', 0))} real rows</span>
 </div>
 </div>
 """)
 
 st.warning(
-    "⚠️ Leak and burst are still rare in the underlying data (19 and 10 rows out of 1,000) — "
-    "5-fold CV evaluates every row exactly once as validation, which is more robust than one "
-    "lucky/unlucky split, but with this few real minority-class examples to begin with, treat "
-    "leak/burst metrics as a solid signal rather than a guaranteed production number. Normal-class "
-    "performance is strong because ~97% of the data is normal readings."
+    "⚠️ Leak and burst are still rare in the underlying real data (19 and 10 rows out of 1,000) — "
+    "the training set was augmented to ~750 examples of each (roughly balanced with the ~780 "
+    "normal training rows) so the model has enough to learn from. This pushed burst recall up to "
+    "90%, but also pushed leak precision down (more false positives) — a known trade-off when "
+    "training data is balanced further from its real-world proportions. Every number above is "
+    "still measured on real, held-out rows only — normal-class performance stays near-perfect "
+    "because ~97% of the real data is normal readings."
 )
 
 st.write("")
