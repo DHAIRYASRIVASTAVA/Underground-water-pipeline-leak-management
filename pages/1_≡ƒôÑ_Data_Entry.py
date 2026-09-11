@@ -165,8 +165,9 @@ if "last_result" in st.session_state:
         st.plotly_chart(shap_fig, width='stretch')
 
     st.caption("🔴 Pushes toward this class · 🔵 Pushes away from it")
-    st.caption("⚠️ This model is trained on only 19 leak and 10 burst examples in the training data — "
-               "treat confidence on those two classes as indicative, not production-grade.")
+    st.caption("⚠️ Trained on a dataset with only 19 leak and 10 burst examples (SMOTE-balanced "
+               "during training to help the model learn their pattern) — see the Analysis dashboard "
+               "for honest 5-fold cross-validated performance on these classes.")
 
     st.write("")
     section_head("03", "Recommended Action")

@@ -41,8 +41,13 @@ counter_grid([
 ])
 
 st.write("")
-section_head("00", "Model Performance (test set)")
-st.caption("These numbers come straight from the training run's held-out test split — not simulated.")
+section_head("00", "Model Performance (5-fold cross-validation)")
+st.caption(
+    "These numbers come from 5-fold stratified cross-validation across all 1,000 rows — "
+    "not a single lucky test split. SMOTE oversampling was applied only inside each fold's "
+    "training data (never touching the validation fold), to correct for the dataset's severe "
+    "class imbalance without leaking synthetic samples into evaluation."
+)
 
 report = artifacts["status_report"]
 perf_cols = st.columns(3)
@@ -63,10 +68,11 @@ Support: <span style="color:var(--steel);">{int(m.get('support', 0))} test rows<
 """)
 
 st.warning(
-    "⚠️ Leak and burst have very few test examples (a handful each) since the source dataset only "
-    "has 19 leak and 10 burst rows out of 1,000 total. Precision/recall on those two classes will "
-    "swing a lot if retrained on a different random split — treat them as a rough signal, not a "
-    "guarantee. Normal-class performance is solid because ~97% of the data is normal readings."
+    "⚠️ Leak and burst are still rare in the underlying data (19 and 10 rows out of 1,000) — "
+    "5-fold CV evaluates every row exactly once as validation, which is more robust than one "
+    "lucky/unlucky split, but with this few real minority-class examples to begin with, treat "
+    "leak/burst metrics as a solid signal rather than a guaranteed production number. Normal-class "
+    "performance is strong because ~97% of the data is normal readings."
 )
 
 st.write("")

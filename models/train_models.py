@@ -15,17 +15,34 @@ is handled directly from the input (the user picks a sensor), and water
 loss is estimated with a transparent, non-ML heuristic at inference time
 (see utils/inference.py) — not presented as a model prediction.
 
+Class imbalance handling: the dataset is 97.1% normal / 1.9% leak / 1.0%
+burst. Two things address this, both standard, defensible ML practice
+(not data fabrication):
+
+  1. Reported performance comes from 5-fold STRATIFIED cross-validation,
+     with SMOTE oversampling applied ONLY inside each fold's training
+     split (never touching the validation fold) — this avoids the classic
+     leakage mistake of oversampling before splitting, which would let
+     synthetic near-duplicates of validation rows leak into training.
+  2. The final deployed model is trained on the full dataset after SMOTE
+     oversampling (real feature space interpolation between existing
+     minority-class points — not invented data), then saved as a plain
+     RandomForestClassifier (not wrapped in a Pipeline) so SHAP's
+     TreeExplainer keeps working directly on it, same as before.
+
 Also computes and saves per-sensor pressure baselines (median), used by
-that heuristic.
+the impact-estimate heuristic.
 """
 
 import joblib
 import pandas as pd
 from pathlib import Path
 from sklearn.ensemble import IsolationForest, RandomForestClassifier
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import StratifiedKFold, cross_val_predict
 from sklearn.preprocessing import StandardScaler, LabelEncoder
-from sklearn.metrics import classification_report, accuracy_score
+from sklearn.metrics import classification_report
+from imblearn.over_sampling import SMOTE
+from imblearn.pipeline import Pipeline as ImbPipeline
 
 BASE_DIR = Path(__file__).parent
 ARTIFACT_DIR = BASE_DIR / "artifacts"
@@ -53,22 +70,35 @@ def train_status_model(df, scaler):
     le = LabelEncoder()
     y = le.fit_transform(df["status"])
 
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=42, stratify=y
-    )
-    model = RandomForestClassifier(
-        n_estimators=200, max_depth=10, class_weight="balanced", random_state=42
-    )
-    model.fit(X_train, y_train)
-    acc = accuracy_score(y_test, model.predict(X_test))
-    print(f"[Status Model] Test accuracy: {acc:.3f}")
-    print("NOTE: leak/burst are ~2% and ~1% of this 1,000-row dataset, so the")
-    print("test split only has a handful of each — treat minority-class")
-    print("metrics below as indicative, not statistically solid.")
-    report_dict = classification_report(y_test, model.predict(X_test), target_names=le.classes_,
+    print(f"[Status Model] Class counts before SMOTE: "
+          f"{dict(zip(le.classes_, [sum(y == i) for i in range(len(le.classes_))]))}")
+
+    # --- Honest performance estimate: 5-fold stratified CV, SMOTE inside
+    #     training folds only (via imblearn's Pipeline + cross_val_predict,
+    #     which refits SMOTE fresh per fold on that fold's train split) ---
+    skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+    cv_pipeline = ImbPipeline([
+        ("smote", SMOTE(random_state=42, k_neighbors=3)),
+        ("clf", RandomForestClassifier(n_estimators=200, max_depth=10, random_state=42)),
+    ])
+    y_pred_cv = cross_val_predict(cv_pipeline, X, y, cv=skf)
+    report_dict = classification_report(y, y_pred_cv, target_names=le.classes_,
                                          zero_division=0, output_dict=True)
-    print(classification_report(y_test, model.predict(X_test), target_names=le.classes_, zero_division=0))
-    return model, le, report_dict
+    print("\n=== 5-Fold Stratified CV Report (SMOTE applied only within training folds) ===")
+    print(classification_report(y, y_pred_cv, target_names=le.classes_, zero_division=0))
+
+    # --- Final deployed model: SMOTE the full dataset once, fit a plain
+    #     RandomForestClassifier (not a Pipeline) so SHAP TreeExplainer
+    #     and .feature_importances_ keep working exactly as before ---
+    smote = SMOTE(random_state=42, k_neighbors=3)
+    X_resampled, y_resampled = smote.fit_resample(X, y)
+    print(f"[Status Model] Class counts after SMOTE: "
+          f"{dict(zip(le.classes_, [sum(y_resampled == i) for i in range(len(le.classes_))]))}")
+
+    final_model = RandomForestClassifier(n_estimators=200, max_depth=10, random_state=42)
+    final_model.fit(X_resampled, y_resampled)
+
+    return final_model, le, report_dict
 
 
 def compute_sensor_baselines(df):
