@@ -1,16 +1,4 @@
-"""
-AquaGuard AI — Inference Utility (Real Dataset)
-----------------------------------------------------
-Loads the two trained models (anomaly detector, status classifier) plus
-the per-sensor pressure baselines, and exposes run_prediction().
 
-Water-loss / impact estimate: this dataset has no water-loss ground
-truth, so there's no trained regressor for it (unlike the earlier
-synthetic-data version). Instead, `estimate_impact()` below is an
-explicit, non-ML heuristic — a pressure-drop-vs-that-sensor's-own-median
-calculation — clearly surfaced in the UI as an estimate, not a model
-prediction.
-"""
 
 import joblib
 import numpy as np
