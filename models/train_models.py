@@ -1,27 +1,4 @@
-"""
-AquaGuard AI — Model Training (Augmented Dataset)
-------------------------------------------------------
-Two things happen here, kept deliberately separate:
 
-1. REPORTED PERFORMANCE (Analysis dashboard): 5-fold stratified
-   cross-validation over the FULL real 1,000-row dataset. Inside each
-   fold, augmentation statistics are computed fresh from ONLY that
-   fold's training partition (never the validation rows), so nothing
-   synthetic ever leaks information about a row it will later be
-   evaluated on. Every real row gets predicted exactly once (as that
-   fold's validation data), so the aggregated report covers all 1,000
-   real rows — far more statistically robust than a single 200-row
-   train/test split.
-
-2. THE DEPLOYED MODEL (what the live app actually uses): trained on the
-   persisted data/pipeline_dataset_augmented.csv (see augment_dataset.py)
-   — real training rows + distribution-matched synthetic leak/burst rows,
-   a literal, inspectable file rather than something that only exists
-   transiently inside a training script.
-
-Location and water-loss models remain dropped — no segment/pipe-network
-structure or water-loss ground truth in this dataset to train them on.
-"""
 
 import joblib
 import numpy as np
