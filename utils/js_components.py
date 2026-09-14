@@ -1,13 +1,3 @@
-"""
-AquaGuard AI — JavaScript-powered interactive components
--------------------------------------------------------------
-Streamlit strips raw <script> tags from st.markdown(unsafe_allow_html=True)
-for security, so real JavaScript can only run inside a sandboxed iframe via
-streamlit.components.v1.html(). These components use that path for the
-things that genuinely benefit from client-side JS — count-up number
-animation, hover tooltips on the schematic, and an animated gauge needle —
-all of which need zero Python round-trips once rendered.
-"""
 
 import streamlit as st
 
