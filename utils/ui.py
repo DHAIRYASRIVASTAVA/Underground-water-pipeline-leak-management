@@ -1,19 +1,4 @@
-"""
-AquaGuard AI — UI helper components
---------------------------------------
-Injects the design-system CSS and renders reusable HTML components
-(readout cards, status badges, feature cards, the animated pipeline
-schematic) used across all three pages.
 
-IMPORTANT: Streamlit runs all `st.markdown(..., unsafe_allow_html=True)`
-content through a Markdown parser BEFORE allowing raw HTML through. Any
-line indented with 4+ spaces is interpreted as a Markdown code block, so
-plain multi-line, indented f-strings render as literal text instead of
-HTML. `render_html()` strips leading whitespace from every line before
-handing it to st.markdown to avoid that — always use it (or the
-components below, which already use it) instead of calling
-st.markdown(..., unsafe_allow_html=True) directly with an indented string.
-"""
 
 import streamlit as st
 from pathlib import Path
