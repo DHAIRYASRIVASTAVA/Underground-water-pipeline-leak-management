@@ -1,10 +1,4 @@
-"""
-AquaGuard AI — Recommendation Engine (Real Dataset)
---------------------------------------------------------
-Rule-based guidance mapped to the dataset's actual status categories:
-normal / leak / burst (no severity gradient like the synthetic-data
-version had — this dataset only provides binary leak/burst flags).
-"""
+
 
 URGENCY = {
     "normal": {
