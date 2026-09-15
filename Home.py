@@ -26,9 +26,6 @@ st.write("")
 interactive_sensor_map(sensor_list, baselines)
 
 st.write("")
-live_ticker(label="LIVE MONITORING FEED (SIMULATED)", start_value=48210, unit=" readings")
-
-st.write("")
 counter_grid([
     {"label": "Sensors Monitored", "value": len(sensor_list), "sub": "S001 – S010"},
     {"label": "Training Readings", "value": 1000, "sub": "real Kaggle dataset"},
