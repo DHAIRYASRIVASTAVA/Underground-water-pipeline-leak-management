@@ -165,11 +165,7 @@ if "last_result" in st.session_state:
         st.plotly_chart(shap_fig, width='stretch')
 
     st.caption("🔴 Pushes toward this class · 🔵 Pushes away from it")
-    st.caption("⚠️ Trained on a dataset with only 19 real leak and 10 real burst examples — "
-               "the training set was augmented to ~750 examples each (roughly balanced with "
-               "normal), which noticeably improved burst detection but traded some leak "
-               "precision for higher recall. See the Analysis dashboard for the honest, "
-               "real-data-only performance numbers.")
+    
 
     st.write("")
     section_head("03", "Recommended Action")
