@@ -28,7 +28,6 @@ interactive_sensor_map(sensor_list, baselines)
 st.write("")
 counter_grid([
     {"label": "Sensors Monitored", "value": len(sensor_list), "sub": "S001 – S010"},
-    {"label": "Training Readings", "value": 1000, "sub": "real Kaggle dataset"},
     {"label": "ML Models Active", "value": 2, "sub": "anomaly · status classifier"},
     {"label": "SHAP Explanations", "value": 100, "suffix": "%", "sub": "per-prediction attribution"},
 ])
