@@ -40,8 +40,6 @@ counter_grid([
     {"label": "Burst Events", "value": stats["burst_events"], "status": "severe" if stats["burst_events"] else "none"},
 ])
 
-st.write("")
-section_head("00", "Model Performance (5-fold cross-validation)")
 
 
 report = artifacts["status_report"]
